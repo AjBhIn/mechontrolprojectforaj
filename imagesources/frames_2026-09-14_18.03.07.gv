@@ -1,0 +1,32 @@
+digraph G {
+"enemy_bot/odom" -> "enemy_bot/base_footprint"[label=" Broadcaster: default_authority\nAverage rate: 50.256\nBuffer length: 3.9\nMost recent transform: 1043.223\nOldest transform: 1039.323\n"];
+"our_bot/base_footprint" -> "our_bot/base_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"our_bot/odom" -> "our_bot/base_footprint"[label=" Broadcaster: default_authority\nAverage rate: 50.258\nBuffer length: 3.88\nMost recent transform: 1043.215\nOldest transform: 1039.335\n"];
+"our_bot/camera_link" -> "our_bot/camera_depth_frame"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"our_bot/base_link" -> "our_bot/camera_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"our_bot/camera_depth_frame" -> "our_bot/camera_depth_optical_frame"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"our_bot/camera_link" -> "our_bot/camera_rgb_frame"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"our_bot/camera_rgb_frame" -> "our_bot/camera_rgb_optical_frame"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"our_bot/base_link" -> "our_bot/caster_back_left_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"our_bot/base_link" -> "our_bot/caster_back_right_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"our_bot/base_link" -> "our_bot/imu_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"our_bot/base_link" -> "our_bot/base_scan"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"our_bot/base_link" -> "our_bot/wheel_left_link"[label=" Broadcaster: default_authority\nAverage rate: 20.256\nBuffer length: 3.9\nMost recent transform: 1043.224\nOldest transform: 1039.324\n"];
+"our_bot/base_link" -> "our_bot/wheel_right_link"[label=" Broadcaster: default_authority\nAverage rate: 20.256\nBuffer length: 3.9\nMost recent transform: 1043.224\nOldest transform: 1039.324\n"];
+"enemy_bot/base_footprint" -> "enemy_bot/base_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"enemy_bot/camera_link" -> "enemy_bot/camera_depth_frame"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"enemy_bot/base_link" -> "enemy_bot/camera_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"enemy_bot/camera_depth_frame" -> "enemy_bot/camera_depth_optical_frame"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"enemy_bot/camera_link" -> "enemy_bot/camera_rgb_frame"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"enemy_bot/camera_rgb_frame" -> "enemy_bot/camera_rgb_optical_frame"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"enemy_bot/base_link" -> "enemy_bot/caster_back_left_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"enemy_bot/base_link" -> "enemy_bot/caster_back_right_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"enemy_bot/base_link" -> "enemy_bot/imu_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"enemy_bot/base_link" -> "enemy_bot/base_scan"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"enemy_bot/base_link" -> "enemy_bot/wheel_left_link"[label=" Broadcaster: default_authority\nAverage rate: 20.256\nBuffer length: 3.9\nMost recent transform: 1043.232\nOldest transform: 1039.332\n"];
+"enemy_bot/base_link" -> "enemy_bot/wheel_right_link"[label=" Broadcaster: default_authority\nAverage rate: 20.256\nBuffer length: 3.9\nMost recent transform: 1043.232\nOldest transform: 1039.332\n"];
+edge [style=invis];
+ subgraph cluster_legend { style=bold; color=black; label ="view_frames Result";
+"Recorded at time: 1789365787.6997273"[ shape=plaintext ] ;
+}->"our_bot/odom";
+}

@@ -1,0 +1,26 @@
+enemy_bot/amcl:
+  ros__parameters:
+    use_sim_time: true
+    alpha1: 0.2
+    alpha2: 0.2
+    alpha3: 0.2
+    alpha4: 0.2
+    alpha5: 0.2
+    base_frame_id: enemy_bot/base_link
+    odom_frame_id: enemy_bot/odom
+    global_frame_id: map
+    laser_model_type: "likelihood_field"
+    max_beams: 60
+    max_particles: 8000
+    min_particles: 200
+    robot_model_type: "nav2_amcl::DifferentialMotionModel"
+    tf_broadcast: true
+    transform_tolerance: 1.0
+    map_topic: /map
+    scan_topic: /enemy_bot/scan
+    set_initial_pose: true
+    initial_pose:
+      x: 2.0
+      y: 0.5
+      z: 0.0
+      yaw: 3.14159
