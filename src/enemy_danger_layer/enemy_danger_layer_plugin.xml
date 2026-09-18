@@ -1,0 +1,7 @@
+<library path="enemy_danger_layer_core">
+  <class name="enemy_danger_layer/EnemyDangerLayer"
+         type="enemy_danger_layer::EnemyDangerLayer"
+         base_class_type="nav2_costmap_2d::Layer">
+    <description>Adds dynamic 180-degree front camera danger zone around enemy robot.</description>
+  </class>
+</library>

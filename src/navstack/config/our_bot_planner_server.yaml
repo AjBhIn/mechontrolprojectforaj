@@ -1,7 +1,7 @@
 our_bot:
   planner_server:
     ros__parameters:
-      expected_planner_frequency: 20.0
+      expected_planner_frequency: 10.0
       use_sim_time: True
       planner_plugins: ["GridBased"]
       GridBased:
@@ -22,7 +22,15 @@ our_bot:
         track_unknown_space: true
         # footprint: '[ [0.15, 0.12], [0.15, -0.12], [-0.15, -0.12], [-0.15, 0.12] ]' # Matches global costmap footprint 
         robot_radius: 0.20
-        plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
+        plugins: ["static_layer", "obstacle_layer", "enemy_danger_layer", "inflation_layer"]
+
+        # 2. Define the layer parameters
+        enemy_danger_layer:
+          plugin: "enemy_danger_layer/EnemyDangerLayer"
+          enemy_frame: "enemy_bot/base_link"  # Set to exact TF frame of enemy base
+          danger_radius: 0.5                # FOV radius in meters
+          enabled: True
+
         static_layer:
           plugin: "nav2_costmap_2d::StaticLayer"
           map_subscribe_transient_local: True
