@@ -23,7 +23,7 @@ class TargetPointBroadcaster(Node):
     def broadcast_target_frame(self):
         t = TransformStamped()
 
-        # get_clock().now() automatically syncs with Gazebo sim time when --ros-args -p use_sim_time:=true is passed
+        # With use_sim_time declared, get_clock().now() locks to Gazebo time (~431s)
         t.header.stamp = self.get_clock().now().to_msg()
         t.header.frame_id = self.parent_frame
         t.child_frame_id = self.child_frame

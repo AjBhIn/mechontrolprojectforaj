@@ -26,7 +26,9 @@ setup(
     entry_points={
         'console_scripts': [
             'target_frame = tfpkg.target_tf_broadcaster:main',
-            'danager_zone = tfpkg.avoidzone:main'
+            'targetfollower = tfpkg.targetpoint_follower:main',
+            'main = tfpkg.main:main',
+            'goaltf = tfpkg.goalsender:main'
         ],
     },
 )

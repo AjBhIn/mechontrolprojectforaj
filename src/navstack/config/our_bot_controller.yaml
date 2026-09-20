@@ -115,8 +115,8 @@ our_bot/local_costmap:
   local_costmap:
     ros__parameters:
       use_sim_time: true
-      update_frequency: 15.0
-      publish_frequency: 10.0
+      update_frequency: 20.0
+      publish_frequency: 20.0
       global_frame: our_bot/odom
       robot_base_frame: our_bot/base_link
       rolling_window: true
