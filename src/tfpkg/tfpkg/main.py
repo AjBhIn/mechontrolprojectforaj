@@ -60,7 +60,7 @@ class GoalSetter(Node):
         self.get_logger().info(f"Escape Nav Controller initialized. Listening for '{self.escape_tf}'")
 
     # ==========================================
-    # 3. TF TARGET LOOKUP
+    # TF TARGET LOOKUP
     # ==========================================
     def get_escape_pose_in_map(self) -> PoseStamped:
         """Looks up dynamic_nav_target in map frame and converts it to PoseStamped."""
@@ -88,7 +88,7 @@ class GoalSetter(Node):
             return None
 
     # ==========================================
-    # 4. CONTROL LOOP & GOAL DISPATCH
+    # CONTROL LOOP & GOAL DISPATCH
     # ==========================================
     def control_loop(self):
         # 1. Check if the escape target frame exists

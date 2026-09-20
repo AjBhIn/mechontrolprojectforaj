@@ -6,6 +6,7 @@ import tf2_ros
 from geometry_msgs.msg import TransformStamped
 from nav_msgs.msg import OccupancyGrid
 from typing import List, Tuple, Optional
+import numpy as np
 
 class LocalSteerEscapeBroadcaster(Node):
     def __init__(self):
@@ -30,6 +31,7 @@ class LocalSteerEscapeBroadcaster(Node):
         self.angle_steps = []
         for deg in range(0, 360, 8):       # 8-degree slices
             rad = math.radians(deg)
+            # Storing angles before to save time
             self.angle_steps.append((math.cos(rad), math.sin(rad)))
 
         # --- Map Caching Setup ---
@@ -39,7 +41,7 @@ class LocalSteerEscapeBroadcaster(Node):
         self.map_height = 0
         self.map_origin_x = 0.0
         self.map_origin_y = 0.0
-        self.MAX_SAFE_COST = 80  # Adjust based on inflation radius
+        self.MAX_SAFE_COST = 100  # Adjust based on inflation radius
 
         self.costmap_sub = self.create_subscription(
             OccupancyGrid, 'our_bot/global_costmap/costmap', self.costmap_callback, 10
@@ -48,7 +50,7 @@ class LocalSteerEscapeBroadcaster(Node):
         # --- Hysteresis (Anti-Jitter Memory) ---
         self.last_target_x = None
         self.last_target_y = None
-        self.MIN_UPDATE_DIST = 0.15  # Deadband threshold (meters)
+        self.MIN_UPDATE_DIST = 0.20  # Deadband threshold (meters)
 
         # --- FEATURE ADDITION: Memory Cache Bank ---
         # Stores top-ranked points from previous execution cycles to save CPU cycles
@@ -64,7 +66,7 @@ class LocalSteerEscapeBroadcaster(Node):
 
     def costmap_callback(self, msg: OccupancyGrid):
         """SPEED OPTIMIZATION 2: Flatten map info into class variables."""
-        self.map_data = msg.data
+        self.map_data = np.array(msg.data, dtype=np.int16)
         self.map_res = msg.info.resolution
         self.map_width = msg.info.width
         self.map_height = msg.info.height
@@ -119,24 +121,35 @@ class LocalSteerEscapeBroadcaster(Node):
         return 255 if cost == -1 else cost
 
     def is_path_clear(self, start_x: float, start_y: float, end_x: float, end_y: float) -> bool:
-        """Fast raycast: Walks the line in 5cm steps checking for walls."""
-        dx = end_x - start_x
-        dy = end_y - start_y
-        dist = math.hypot(dx, dy)
+
+        if self.map_data is None:
+                    return False
+
+        dist = math.hypot(end_x - start_x, end_y - start_y)
         
-        steps = max(2, int(dist / 0.05))
-        step_x = dx / steps
-        step_y = dy / steps
-        
-        curr_x, curr_y = start_x, start_y
-        for _ in range(steps):
-            curr_x += step_x
-            curr_y += step_y
-            
-            cost = self.get_cell_cost(curr_x, curr_y)
-            if cost > self.MAX_SAFE_COST or cost == -1:
-                return False # Hit a wall or unknown space
-                
+        # Dynamic step sizing: 10cm step for short rays (<=0.8m), 5cm for longer
+        step_size = 0.10 if dist <= 0.8 else 0.05
+        steps = max(2, int(dist / step_size))
+
+        # Generate sample points along the line vector in one C-level operation
+        t = np.linspace(0.0, 1.0, steps)
+        px = start_x + t * (end_x - start_x)
+        py = start_y + t * (end_y - start_y)
+
+        # Convert coordinates to grid indices (vectorized)
+        cols = np.clip(((px - self.map_origin_x) / self.map_res).astype(np.int32), 0, self.map_width - 1)
+        rows = np.clip(((py - self.map_origin_y) / self.map_res).astype(np.int32), 0, self.map_height - 1)
+
+        # Flat 1D index mapping
+        indices = rows * self.map_width + cols
+
+        # Fetch costs instantly using NumPy indexing
+        costs = self.map_data[indices]
+
+        # Vectorized check: Reject if any cell is unknown (-1) or exceeds safe threshold
+        if np.any(costs > self.MAX_SAFE_COST) or np.any(costs == -1):
+            return False
+
         return True
 
     # =========================================================================
@@ -184,7 +197,7 @@ class LocalSteerEscapeBroadcaster(Node):
         # Default baseline weights
         w_dist = 10.0
         w_speed = 2.0
-        w_turn = 2.0
+        w_turn = 4.0
         w_cost = 0.3
 
         # Tight Space Adjustments: Near obstacles/narrow corridors
@@ -214,20 +227,26 @@ class LocalSteerEscapeBroadcaster(Node):
         the planner from steering into corners or dead-ends.
         """
         future_clear_branches = 0
+        blocked_branches = 0
+        MAX_ALLOWED_BLOCKED = 2  # Early-exit threshold
         probe_radius = 0.5
 
-        # Sub-sample every 4th angle (32° steps) to keep CPU overhead negligible
+        # Sub-sample every 4th angle (32° steps)
         for cos_val, sin_val in self.angle_steps[::4]:
             next_x = cand_x + (probe_radius * cos_val)
             next_y = cand_y + (probe_radius * sin_val)
 
-            if self.is_path_clear(cand_x, cand_y, next_x, next_y):
-                if self.get_cell_cost(next_x, next_y) <= self.MAX_SAFE_COST:
-                    future_clear_branches += 1
+            if self.is_path_clear(cand_x, cand_y, next_x, next_y) and self.get_cell_cost(next_x, next_y) <= self.MAX_SAFE_COST:
+                future_clear_branches += 1
+            else:
+                blocked_branches += 1
+                # SHORT-CIRCUIT: If we hit too many walls early, abort probe search!
+                if blocked_branches >= MAX_ALLOWED_BLOCKED:
+                    return 0.0
 
-        # Reward candidate points that preserve open escape routes
         return future_clear_branches * 1.5
 
+    
     def get_safe_escape_points(self, robot_x: float, robot_y: float) -> list:
         safe_points = []
         
@@ -274,6 +293,10 @@ class LocalSteerEscapeBroadcaster(Node):
 
             # 4. Costmap Penalty (using adaptive weight)
             score -= cost * weights['w_cost']
+
+            # 5. Giving it more points if can avoid the corners and small spaces
+            if 0 <= cost < 15:
+                score += 12.0
 
             # 5. Mini-MCTS: Lookahead branch score
             score += self.evaluate_future_options(cand_x, cand_y)
